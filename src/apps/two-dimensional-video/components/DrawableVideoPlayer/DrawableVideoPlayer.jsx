@@ -43,6 +43,7 @@ const DrawableVideoPlayer = ({
 	} = twoDimensionalVideoContext;
 
 	const rootClassName = `drawable-video-player${className ? ` ${className}` : ''}`;
+
 	return (
 		<div className={ rootClassName }>
 			<div className='drawable-video-player__player-canvas-wrapper'>
@@ -59,6 +60,7 @@ const DrawableVideoPlayer = ({
 					playbackRate={ playbackRate }
 				/>
 				<Canvas
+					duration={ duration } // Added to switch time representation from 0-1 to start-end
 					width={ width }
 					height={ height }
 					played={ played }

@@ -76,7 +76,7 @@ const Canvas = ({
 
 	const annotationsUI = annotations.map((annotationId) => {
 		const { color, name, selectedOptions, isClosed, vertices } = entities.annotations[annotationId];
-		const colorWithOpacity = color.replace(/,1\)/, ',.15)');
+		const colorWithOpacity = color.replace(/,1\)/, ',.1)');
 
 		const verticesUI = [];
 		const linePoints = [];
@@ -84,52 +84,6 @@ const Canvas = ({
 		vertices.forEach((v, i) => {
 			if (i === 0) {
 				startPoint.x = v.x; startPoint.y = v.y;
-			}
-			if (isAdding && focusedName === name && i === 0) {
-				verticesUI.push(
-					<Circle
-						x={ v.x }
-						y={ v.y }
-						key={ v.name }
-						name={ v.name }
-						radius={ CONST.DOT_LENGTH * 1.1 }
-						stroke={ color }
-						fill={ colorWithOpacity }
-						strokeWidth={ 1 }
-						draggable
-						dragOnTop={ false }
-						onMouseDown={ onVertexMouseDown }
-						onMouseOver={ handleFirstVertexMouseOver }
-						onMouseOut={ () => handleMouseOut(isAdding) }
-						onFocus={ () => {} }
-						onBlur={ () => {} }
-					/>,
-				);
-			} else {
-				verticesUI.push(
-					<Rect
-						offsetX={ CONST.DOT_LENGTH / 2 }
-						offsetY={ CONST.DOT_LENGTH / 2 }
-						x={ v.x }
-						y={ v.y }
-						key={ v.name }
-						name={ v.name }
-						stroke={ color }
-						fill={ color }
-						strokeWidth={ 0 }
-						width={ CONST.DOT_LENGTH }
-						height={ CONST.DOT_LENGTH }
-						draggable
-						dragOnTop={ false }
-						onMouseDown={ onVertexMouseDown }
-						onMouseOver={ handleVertexMouseOver }
-						onMouseOut={ () => handleMouseOut(isAdding) }
-						onDragEnd={ onVertexDragEnd }
-						onDragMove={ e => handleVertexDragMove(e, isAdding, entities) }
-						onFocus={ () => {} }
-						onBlur={ () => {} }
-					/>,
-				);
 			}
 			linePoints.push(v.x); linePoints.push(v.y);
 		});
@@ -146,20 +100,13 @@ const Canvas = ({
 				onFocus={ () => {} }
 				onBlur={ () => {} }
 			>
-				<Tag
-					name={ name }
-					fill='#000'
-					opacity={ 0.4 }
-					pointerDirection='down'
-					pointerWidth={ 10 }
-					pointerHeight={ 10 }
-					lineJoin='round'
-					cornerRadius={ 7 }
-				/>
 				<Text
-					name={ name }
-					padding={ 5 }
-					fontFamily='Calibri'
+					offsetY={ -10 }
+					offsetX={ -6 }
+					x={ 0 }
+					y={ 0 }
+					fontFamily='Arial'
+					fontStyle='bold'
 					text={ selectedOptions.length > 0 ? `${selectedOptions[selectedOptions.length - 1].value}` : 'Not selected' }
 					fontSize={ 16 }
 					lineHeight={ 1.2 }
@@ -172,9 +119,9 @@ const Canvas = ({
 				name={ name }
 				points={ linePoints }
 				closed={ isClosed }
-				fill={ focusedName === name ? colorWithOpacity : '' }
+				fill={ colorWithOpacity } // It is not optional anymore. The content is always filled.
 				stroke={ color }
-				strokeWidth={ 1 }
+				strokeWidth={ 2 }
 				lineCap='round'
 				lineJoin='round'
 				onMouseDown={ onLineMouseDown }
@@ -188,7 +135,6 @@ const Canvas = ({
 		return (
 			<Group key={ name } name={ name }>
 				{lineUI}
-				{verticesUI}
 				{labelUI}
 			</Group>
 		);

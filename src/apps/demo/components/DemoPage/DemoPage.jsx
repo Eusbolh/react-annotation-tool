@@ -3,27 +3,20 @@ import { hot } from 'react-hot-loader';
 import { TwoDimensionalImage, TwoDimensionalVideo } from 'apps/index';
 import './DemoPage.css';
 
+
+
 const DemoPage = () => {
 	const handleSubmit = r => console.log(r);
 	const imageAnnotations = [{
 		id: 'jlyjm4py',
 		name: 'jlyjm4py',
-		type: 'Polygon',
+		isClosed: true,
 		color: 'rgba(227,0,255,1)',
-		vertices: [{
-			id: 'jlyjm4py', name: 'jlyjm4py', x: 353.36249923706055, y: 258.8999938964844,
-		}, {
-			id: 'jlyjm5em', name: 'jlyjm5em', x: 444.79999923706055, y: 255.89999389648438,
-		}, {
-			id: 'jlyjm5v2', name: 'jlyjm5v2', x: 444.79999923706055, y: 269.8999938964844,
-		}, {
-			id: 'jlyjm6ci', name: 'jlyjm6ci', x: 477.79999923706055, y: 269.8999938964844,
-		}, {
-			id: 'jlyjm6ul', name: 'jlyjm6ul', x: 480.79999923706055, y: 285.8999938964844,
-		}, {
-			id: 'jlyjm7r8', name: 'jlyjm7r8', x: 356.79999923706055, y: 289.8999938964844,
-		}],
-		selectedOptions: [{ id: '0', value: 'root' }, { id: '2', value: 'Text' }, { id: '2-15', value: 'Suspicious' }],
+		vertices: [{id: "0a", x: 153.87370511889458, y: 115.63002655059097},
+		{id: "0b", x: 575.6097681820393, y: 115.63002655059097},
+		{id: "0c", x: 575.6097681820393, y: 509.9546518072485},
+		{id: "0d", x: 153.87370511889458, y: 509.9546518072485}],
+		selectedOptions: [{id: "0x", value: "person"}]
 	}];
 	const options = {
 		id: '0',
@@ -215,7 +208,43 @@ const DemoPage = () => {
 					emptyCheckAnnotationItemWarningText={ emptyCheckAnnotationItemWarningText }
 					emptyAnnotationReminderText={ emptyAnnotationReminderText }
 					numAnnotationsToBeAdded={ 20 }
-					defaultAnnotations={ [] }
+					defaultAnnotations={ [{
+						id: "jwzlwirv",
+						name: "jwzlwirv",
+						label: "1",
+						color: "rgba(255,219,0,1)",
+						parentName: "",
+						childrenNames: ["jwzlwrh3","jwzlwrh4"],
+						incidents:[
+						 {x:198.25, y:137, width:101, height:99, time:0, status:"Show", id:"jwzlwirv", name:"jwzlwirv", label:""},   
+						 {x:235.25, y:190, width:73, height:68, time:0.33, status:"Show", id:"jwzlwlzl", name:"jwzlwlzl", label:""},
+						 {x:235.25, y:190, width:73, height:68, time:0.5213123, status:"Split", id:"jwzlwrh2", name:"jwzlwrh2", label:""}
+						]
+					 },
+					 {
+						 id: "jwzlwrh3",
+						 name: "jwzlwrh3",
+						 label: "1-1",
+						 color: "rgba(0,255,81,1)",
+						 parentName: "jwzlwirv",
+						 childrenNames: [],
+						 incidents: [
+							{x:235.25, y:190, width:36.5, height:34, time:7.555, status:"Show", id:"jwzlwrh2", name:"jwzlwrh2", label:""}, 
+							{x:202.25, y:267, width:64.5, height:83, time:8.12313, status:"Hide", id:"jwzlwy9h", name:"jwzlwy9h", label:""}
+						 ]
+					 },
+					 { 
+						 id: "jwzlwrh4",
+						 name: "jwzlwrh4",
+						 label: "1-2",
+						 color: "rgba(0,255,81,1)",
+						 parentName: "jwzlwirv",
+						 childrenNames: [],
+						 incidents: [
+							{x:251.75, y:204, width:36.5, height:34, time:4.12313, status:"Show", id:"jwzlwrh2", name:"jwzlwrh2", label:""}, 
+							{x:298.75, y:242, width:51.5, height:54, time:5.123131, status:"Hide", id:"jwzlwwpj", name:"jwzlwwpj", label:""}
+						 ]
+					 }] }
 					previewHeader={ previewHeader }
 					previewNoticeList={ previewNoticeList }
 				/>

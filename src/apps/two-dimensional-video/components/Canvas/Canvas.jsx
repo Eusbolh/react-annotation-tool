@@ -31,6 +31,7 @@ const handleGroupDragMove = (e, canvasWidth, canvasHeight) => {
 const Canvas = ({
 	className,
 	dotLength,
+	duration,
 	width: canvasWidth,
 	height: canvasHeight,
 	objects,
@@ -53,14 +54,16 @@ const Canvas = ({
 			incidents, color, id, name, label, isManipulatable,
 		} = entities.annotations[annotationId];
 
+		const playedDuration = played * duration; // Added to switch time representation from 0-1 to start-end
+
 		for (let i = 0; i < incidents.length; i++) {
 			let x;
 			let y;
 			let width;
 			let height;
 
-			if (played >= incidents[i].time) {
-				if (i !== incidents.length - 1 && played >= incidents[i + 1].time) {
+			if (playedDuration >= incidents[i].time) {
+				if (i !== incidents.length - 1 && playedDuration >= incidents[i + 1].time) {
 					continue;
 				}
 				if (incidents[i].status !== SHOW) break; // todo
@@ -76,13 +79,13 @@ const Canvas = ({
 					const interpoArea = getInterpolatedData({
 						startIncident: incidents[i],
 						endIncident: incidents[i + 1],
-						currentTime: played,
+						currentTime: playedDuration,
 						type: INTERPOLATION_TYPE.LENGTH,
 					});
 					const interpoPos = getInterpolatedData({
 						startIncident: incidents[i],
 						endIncident: incidents[i + 1],
-						currentTime: played,
+						currentTime: playedDuration,
 						type: INTERPOLATION_TYPE.POSITION,
 					});
 					({
@@ -93,7 +96,7 @@ const Canvas = ({
 					} = interpoArea);
 				}
 
-				const fill = (focusing === name) ? color.replace(/,1\)/, ',.3)') : '';
+				const fill = color.replace(/,1\)/, ',.1)'); // It is not optional anymore. The content is always filled.
 				const rect = (
 					<Rect
 						x={ 0 }
@@ -102,7 +105,7 @@ const Canvas = ({
 						width={ width }
 						height={ height }
 						stroke={ color }
-						strokeWidth={ 1 }
+						strokeWidth={ 2 }
 						onFocus={ () => {} }
 						onMouseOver={ () => {
 							if (!isManipulatable || isAdding) return;
@@ -112,10 +115,12 @@ const Canvas = ({
 				);
 				const labelText = (
 					<Text
-						offsetY={ 20 }
+						offsetY={ -4 }
+						offsetX={ -4 }
 						x={ 0 }
 						y={ 0 }
 						fontFamily='Arial'
+						fontStyle='bold'
 						text={ label }
 						fontSize={ 16 }
 						lineHeight={ 1.2 }
@@ -171,8 +176,8 @@ const Canvas = ({
 						} }
 						onDragMove={ e => handleGroupDragMove(e, canvasWidth, canvasHeight) }
 					>
-						{labelText}
 						{rect}
+						{labelText}
 						{resizingAnchorsUI}
 					</Group>,
 				);
