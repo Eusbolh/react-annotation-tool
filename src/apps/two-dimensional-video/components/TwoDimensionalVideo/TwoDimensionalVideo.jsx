@@ -34,6 +34,8 @@ class TwoDimensionalVideo extends Component {
 		const entities = { annotations: {} };
 		let annotations = [];
 		if (defaultAnnotations && defaultAnnotations.length !== 0) {
+			annotations = defaultAnnotations;
+			/*
 			const annotation = new schema.Entity('annotations');
 			const normalizedAnn = normalize(defaultAnnotations, [annotation]);
 			entities.annotations = normalizedAnn.entities.annotations;
@@ -41,6 +43,7 @@ class TwoDimensionalVideo extends Component {
 			annotations.forEach((id) => {
 				entities.annotations[id].isManipulatable = props.isDefaultAnnotationsManipulatable;
 			});
+			*/
 		}
 		this.state = {
 			isPreviewed: previewNoticeList && previewNoticeList.length === 0 && !previewHeader,

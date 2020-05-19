@@ -2,8 +2,7 @@ import React from 'react';
 import { hot } from 'react-hot-loader';
 import { TwoDimensionalImage, TwoDimensionalVideo } from 'apps/index';
 import './DemoPage.css';
-
-
+import { testAnnotation } from './testAnnotation';
 
 const DemoPage = () => {
 	const handleSubmit = r => console.log(r);
@@ -198,7 +197,8 @@ const DemoPage = () => {
 			<div className='mb-5'>
 				<TwoDimensionalVideo
 					onSubmit={ handleSubmit }
-					url='https://cildata.crbs.ucsd.edu/media/videos/15793/15793_web.mp4'
+// 					url='https://cildata.crbs.ucsd.edu/media/videos/15793/15793_web.mp4'
+					url='https://hurriyettv.cubecdn.net/2020/05/15/htv_41518248.mp4.m3u8'
 					videoWidth={ 500 }
 					hasReview
 					isEmptyCheckEnable
@@ -208,43 +208,7 @@ const DemoPage = () => {
 					emptyCheckAnnotationItemWarningText={ emptyCheckAnnotationItemWarningText }
 					emptyAnnotationReminderText={ emptyAnnotationReminderText }
 					numAnnotationsToBeAdded={ 20 }
-					defaultAnnotations={ [{
-						id: "jwzlwirv",
-						name: "jwzlwirv",
-						label: "1",
-						color: "rgba(255,219,0,1)",
-						parentName: "",
-						childrenNames: ["jwzlwrh3","jwzlwrh4"],
-						incidents:[
-						 {x:198.25, y:137, width:101, height:99, time:0, status:"Show", id:"jwzlwirv", name:"jwzlwirv", label:""},   
-						 {x:235.25, y:190, width:73, height:68, time:0.33, status:"Show", id:"jwzlwlzl", name:"jwzlwlzl", label:""},
-						 {x:235.25, y:190, width:73, height:68, time:0.5213123, status:"Split", id:"jwzlwrh2", name:"jwzlwrh2", label:""}
-						]
-					 },
-					 {
-						 id: "jwzlwrh3",
-						 name: "jwzlwrh3",
-						 label: "1-1",
-						 color: "rgba(0,255,81,1)",
-						 parentName: "jwzlwirv",
-						 childrenNames: [],
-						 incidents: [
-							{x:235.25, y:190, width:36.5, height:34, time:7.555, status:"Show", id:"jwzlwrh2", name:"jwzlwrh2", label:""}, 
-							{x:202.25, y:267, width:64.5, height:83, time:8.12313, status:"Hide", id:"jwzlwy9h", name:"jwzlwy9h", label:""}
-						 ]
-					 },
-					 { 
-						 id: "jwzlwrh4",
-						 name: "jwzlwrh4",
-						 label: "1-2",
-						 color: "rgba(0,255,81,1)",
-						 parentName: "jwzlwirv",
-						 childrenNames: [],
-						 incidents: [
-							{x:251.75, y:204, width:36.5, height:34, time:4.12313, status:"Show", id:"jwzlwrh2", name:"jwzlwrh2", label:""}, 
-							{x:298.75, y:242, width:51.5, height:54, time:5.123131, status:"Hide", id:"jwzlwwpj", name:"jwzlwwpj", label:""}
-						 ]
-					 }] }
+					defaultAnnotations={testAnnotation}
 					previewHeader={ previewHeader }
 					previewNoticeList={ previewNoticeList }
 				/>
