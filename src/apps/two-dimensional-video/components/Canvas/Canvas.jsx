@@ -31,6 +31,7 @@ const handleGroupDragMove = (e, canvasWidth, canvasHeight) => {
 const Canvas = ({
 	className,
 	dotLength,
+	duration,
 	width: canvasWidth,
 	height: canvasHeight,
 	objects,
@@ -48,23 +49,80 @@ const Canvas = ({
 }) => {
 	const { t } = useTranslation('twoDimensionalVideo');
 	const layerItems = [];
-	annotations.slice().reverse().forEach((annotationId) => {
+	const intervalDuration = 0.05; // Constant
+
+	const playedDuration = played * duration; // Switching time representation of played from 0-1 to start-end
+	const bucketTime = (playedDuration - (playedDuration % intervalDuration)).toFixed(2);
+	const bucket = annotations[bucketTime];
+	if (bucket && Array.isArray(bucket)) {
+		bucket.forEach((annotation) => {
+			const { color, height, label, width, x, y } = annotation;
+			const fill = color.replace(/,1\)/, ',.1)'); // It is not optional anymore. The content is always filled.
+			const rect = (
+				<Rect
+					x={ 0 }
+					y={ 0 }
+					fill={ fill }
+					width={ width }
+					height={ height }
+					stroke={ color }
+					strokeWidth={ 2 }
+					onFocus={ () => {} }
+					onMouseOver={ () => {} }
+				/>
+			);
+			const labelText = (
+				<Text
+					offsetY={ -4 }
+					offsetX={ -4 }
+					x={ 0 }
+					y={ 0 }
+					fontFamily='Arial'
+					fontStyle='bold'
+					text={ label }
+					fontSize={ 16 }
+					lineHeight={ 1.2 }
+					fill='#fff'
+				/>
+			);
+			layerItems.push(
+				<Group
+					x={ x }
+					y={ y }
+					key={ `label-${Math.random()}` }
+					id={ label }
+					name={ `label-${Math.random()}` }
+					draggable={ false }
+					onMouseDown={ () => {} }
+					onDragEnd={ (e) => {
+						if (e.target.getClassName() !== 'Group') return;
+						onGroupDragEnd(e);
+					} }
+					onDragMove={ e => handleGroupDragMove(e, canvasWidth, canvasHeight) }
+				>
+					{rect}
+					{labelText}
+				</Group>,
+			);
+		});
+	}
+
+
+	/* annotations.slice().reverse().forEach((annotationId) => {
 		const {
 			incidents, color, id, name, label, isManipulatable,
 		} = entities.annotations[annotationId];
-
+		const playedDuration = played * duration; // Added to switch time representation from 0-1 to start-end
 		for (let i = 0; i < incidents.length; i++) {
 			let x;
 			let y;
 			let width;
 			let height;
-
-			if (played >= incidents[i].time) {
-				if (i !== incidents.length - 1 && played >= incidents[i + 1].time) {
+			if (playedDuration >= incidents[i].time) {
+				if (i !== incidents.length - 1 && playedDuration >= incidents[i + 1].time) {
 					continue;
 				}
 				if (incidents[i].status !== SHOW) break; // todo
-
 				if (i === incidents.length - 1) {
 					({
 						x,
@@ -76,13 +134,13 @@ const Canvas = ({
 					const interpoArea = getInterpolatedData({
 						startIncident: incidents[i],
 						endIncident: incidents[i + 1],
-						currentTime: played,
+						currentTime: playedDuration,
 						type: INTERPOLATION_TYPE.LENGTH,
 					});
 					const interpoPos = getInterpolatedData({
 						startIncident: incidents[i],
 						endIncident: incidents[i + 1],
-						currentTime: played,
+						currentTime: playedDuration,
 						type: INTERPOLATION_TYPE.POSITION,
 					});
 					({
@@ -92,8 +150,7 @@ const Canvas = ({
 						width, height,
 					} = interpoArea);
 				}
-
-				const fill = (focusing === name) ? color.replace(/,1\)/, ',.3)') : '';
+				const fill = color.replace(/,1\)/, ',.1)'); // It is not optional anymore. The content is always filled.
 				const rect = (
 					<Rect
 						x={ 0 }
@@ -102,7 +159,7 @@ const Canvas = ({
 						width={ width }
 						height={ height }
 						stroke={ color }
-						strokeWidth={ 1 }
+						strokeWidth={ 2 }
 						onFocus={ () => {} }
 						onMouseOver={ () => {
 							if (!isManipulatable || isAdding) return;
@@ -112,17 +169,18 @@ const Canvas = ({
 				);
 				const labelText = (
 					<Text
-						offsetY={ 20 }
+						offsetY={ -4 }
+						offsetX={ -4 }
 						x={ 0 }
 						y={ 0 }
 						fontFamily='Arial'
+						fontStyle='bold'
 						text={ label }
 						fontSize={ 16 }
 						lineHeight={ 1.2 }
 						fill='#fff'
 					/>
 				);
-
 				let resizingAnchorsUI = null;
 				const resizingAnchorsData = [
 					{ x: 0, y: 0, key: 'topLeft', name: 'topLeft' },
@@ -136,7 +194,7 @@ const Canvas = ({
 				];
 				if (isManipulatable) {
 					resizingAnchorsUI = resizingAnchorsData.map(data => (
-						<ResizingAnchor
+						<ResizingAnchorlayedDuration = played * duration;
 							dotLength={ dotLength }
 							color={ color }
 							isManipulatable={ isManipulatable }
@@ -171,8 +229,8 @@ const Canvas = ({
 						} }
 						onDragMove={ e => handleGroupDragMove(e, canvasWidth, canvasHeight) }
 					>
-						{labelText}
 						{rect}
+						{labelText}
 						{resizingAnchorsUI}
 					</Group>,
 				);
@@ -180,6 +238,7 @@ const Canvas = ({
 			}
 		}
 	});
+	*/
 	return (
 		<Stage
 			width={ canvasWidth }

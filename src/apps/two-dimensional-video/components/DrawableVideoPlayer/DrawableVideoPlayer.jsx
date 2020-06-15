@@ -59,6 +59,7 @@ const DrawableVideoPlayer = ({
 					playbackRate={ playbackRate }
 				/>
 				<Canvas
+					duration={ duration } // Added to switch time representation from 0-1 to start-end
 					width={ width }
 					height={ height }
 					played={ played }
