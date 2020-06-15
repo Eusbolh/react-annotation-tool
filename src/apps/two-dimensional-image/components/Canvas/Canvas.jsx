@@ -8,7 +8,7 @@ import './canvas.scss';
 
 
 const CONST = {
-	DOT_LENGTH: 5,
+	DOT_LENGTH: 7,
 	MAGNIFIER_LENGTH: 200,
 };
 
@@ -85,31 +85,11 @@ const Canvas = ({
 			if (i === 0) {
 				startPoint.x = v.x; startPoint.y = v.y;
 			}
-			if (isAdding && focusedName === name && i === 0) {
+			if (focusedName === name) {
 				verticesUI.push(
 					<Circle
-						x={ v.x }
-						y={ v.y }
-						key={ v.name }
-						name={ v.name }
-						radius={ CONST.DOT_LENGTH * 1.1 }
-						stroke={ color }
-						fill={ colorWithOpacity }
-						strokeWidth={ 1 }
-						draggable
-						dragOnTop={ false }
-						onMouseDown={ onVertexMouseDown }
-						onMouseOver={ handleFirstVertexMouseOver }
-						onMouseOut={ () => handleMouseOut(isAdding) }
-						onFocus={ () => {} }
-						onBlur={ () => {} }
-					/>,
-				);
-			} else {
-				verticesUI.push(
-					<Rect
-						offsetX={ CONST.DOT_LENGTH / 2 }
-						offsetY={ CONST.DOT_LENGTH / 2 }
+						offsetX={ 0 }
+						offsetY={ 0 }
 						x={ v.x }
 						y={ v.y }
 						key={ v.name }
@@ -146,24 +126,18 @@ const Canvas = ({
 				onFocus={ () => {} }
 				onBlur={ () => {} }
 			>
-				<Tag
-					name={ name }
-					fill='#000'
-					opacity={ 0.4 }
-					pointerDirection='down'
-					pointerWidth={ 10 }
-					pointerHeight={ 10 }
-					lineJoin='round'
-					cornerRadius={ 7 }
-				/>
 				<Text
-					name={ name }
-					padding={ 5 }
-					fontFamily='Calibri'
-					text={ selectedOptions.length > 0 ? `${selectedOptions[selectedOptions.length - 1].value}` : 'Not selected' }
-					fontSize={ 16 }
-					lineHeight={ 1.2 }
 					fill='#fff'
+					fontFamily='Arial'
+					fontSize={ 16 }
+					fontStyle='bold'
+					lineHeight={ 1.2 }
+					name={ name }
+					offsetX={ -6 }
+					offsetY={ -15 }
+					text={ selectedOptions.length > 0 ? `${selectedOptions[selectedOptions.length - 1].value}` : 'Enter label' }
+					x={ 0 }
+					y={ 0 }
 				/>
 			</Label>
 		) : null;

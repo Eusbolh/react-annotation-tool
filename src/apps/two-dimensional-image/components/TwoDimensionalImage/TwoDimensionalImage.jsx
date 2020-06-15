@@ -4,22 +4,18 @@ import { I18nextProvider } from 'react-i18next';
 import { normalize, denormalize, schema } from 'normalizr';
 import {
 	Button,
-	ButtonGroup,
 } from 'reactstrap';
 import 'bootstrap/dist/css/bootstrap.css';
 import './twoDimensionalImage.scss';
 import { MdAdd } from 'react-icons/md';
-import { FaCommentAlt } from 'react-icons/fa';
 import { UndoRedo } from 'models/UndoRedo.js';
 import { highContrastingColors as colors } from 'shared/utils/colorUtils';
 import { getRandomInt } from 'shared/utils/mathUtils';
 import { Polygon } from '../../models/polygon';
 import { Vertex } from '../../models/vertex';
 import { getUniqueKey } from '../../utils/utils';
-import MagnifierDropdown from '../MagnifierDropdown/MagnifierDropdown.jsx';
 import TwoDimensionalImageContext from './twoDimensionalImageContext';
 import AnnotationList from '../AnnotationList/AnnotationList.jsx';
-import UndoRedoButton from '../UndoRedoButton/UndoRedoButton.jsx';
 import Canvas from '../Canvas/Canvas.jsx';
 import i18nextInstance from './i18n';
 
@@ -96,6 +92,20 @@ class TwoDimensionalImage extends Component {
 
 	componentWillUnmount = () => {
 		document.removeEventListener('keydown', this.handleKeydown, false);
+	}
+
+	componentDidUpdate = (_, prevState) => {
+		/**
+		 * Checking if entities are updated and passing updated
+		 * annotations to the onAnnotationUpdate prop.
+		 */
+		const { entities } = this.state;
+		if (prevState.entities.annotations && prevState.entities !== entities) {
+			const { onAnnotationUpdate } = this.props;
+			if (onAnnotationUpdate) {
+				onAnnotationUpdate(entities.annotations);
+			}
+		}
 	}
 
 	/* ==================== shortkey ==================== */
@@ -363,14 +373,12 @@ class TwoDimensionalImage extends Component {
 		} = this.state;
 		const {
 			className,
-			url,
+			disabledOptionLevels,
 			emptyAnnotationReminderText,
 			isDynamicOptionsEnable,
-			disabledOptionLevels,
 			isViewOnlyMode,
-			hasPreviousButton,
-			hasNextButton,
-			hasSkipButton,
+			renderAnnotationUI,
+			url,
 		} = this.props;
 		const twoDimensionalImageContext = {
 			url,
@@ -402,32 +410,6 @@ class TwoDimensionalImage extends Component {
 		};
 		document.body.style.cursor = isAdding ? 'crosshair' : 'default';
 
-		const toggleLabelButtonUI = (
-			<Button color='link' onClick={ this.handleToggleLabel } className='two-dimensional-image__label-button d-flex align-items-center'>
-				<FaCommentAlt className='pr-1' />
-				{isLabelOn ? 'On' : 'Off'}
-				<small className='pl-1'>{`(${SHORTCUTS.BUTTON.TOGGLE_LABEL.key})`}</small>
-			</Button>
-		);
-		const previousButtonUI = hasPreviousButton ? (
-			<Button color='secondary' onClick={ () => this.handleSubmit('Previous') }>
-				Previous
-				<small>{`(${SHORTCUTS.BUTTON.PREVIOUS.key})`}</small>
-			</Button>
-		) : '';
-		const nextButtonUI = hasNextButton ? (
-			<Button color='secondary' onClick={ () => this.handleSubmit('Next') }>
-				Next
-				<small>{`(${SHORTCUTS.BUTTON.NEXT.key})`}</small>
-			</Button>
-		) : '';
-		const skipButtonUI = hasSkipButton ? (
-			<Button color='secondary' onClick={ () => this.handleSubmit('Skip') }>
-				Skip
-				<small>{`(${SHORTCUTS.BUTTON.SKIP.key})`}</small>
-			</Button>
-		) : '';
-
 		const addButtonUI = (
 			<Button
 				outline
@@ -447,34 +429,8 @@ class TwoDimensionalImage extends Component {
 			<I18nextProvider i18n={ i18nextInstance }>
 				<TwoDimensionalImageContext.Provider value={ twoDimensionalImageContext }>
 					<div className={ rootClassName }>
-						{ !isViewOnlyMode && (
-							<div className='d-flex justify-content-center pb-3'>
-								<ButtonGroup>
-									{ previousButtonUI }
-									{ nextButtonUI }
-								</ButtonGroup>
-							</div>
-						)}
 						<div className='d-flex flex-wrap justify-content-around py-3 two-dimensional-image__image-canvas-container'>
 							<div className='mb-3'>
-								{ !isViewOnlyMode && (
-									<div className='mb-3 d-flex'>
-										<div className='d-flex mr-auto'>
-											{toggleLabelButtonUI}
-											<MagnifierDropdown
-												handleChange={ this.handleMagnifierChange }
-												power={ magnifyingPower }
-												shortcuts={ SHORTCUTS.MAGNIFIER }
-											/>
-										</div>
-										<UndoRedoButton
-											undoRedoState={ this.UndoRedoState }
-											onUndoClick={ this.handleUndoClick }
-											onRedoClick={ this.handleRedoClick }
-											shortcuts={ SHORTCUTS.UNDO_REDO }
-										/>
-									</div>
-								)}
 								<div style={ { position: 'relative' } }>
 									<Canvas
 										entities={ entities }
@@ -484,16 +440,18 @@ class TwoDimensionalImage extends Component {
 									/>
 								</div>
 							</div>
-							{ !isViewOnlyMode && (
+							{
+								renderAnnotationUI ?
+									renderAnnotationUI(this.handleAddClick) :
+									null
+							}
+							{/* !isViewOnlyMode && (
 								<div className='mb-3'>
 									{addButtonUI}
 									<AnnotationList />
 								</div>
-							)}
+							) */}
 						</div>
-						{ !isViewOnlyMode && (
-							<div className='d-flex justify-content-center pt-3'>{ skipButtonUI }</div>
-						)}
 					</div>
 				</TwoDimensionalImageContext.Provider>
 			</I18nextProvider>
@@ -510,9 +468,6 @@ TwoDimensionalImage.propTypes = {
 	disabledOptionLevels: PropTypes.arrayOf(PropTypes.string),
 	emptyAnnotationReminderText: PropTypes.string,
 	isViewOnlyMode: PropTypes.bool,
-	hasPreviousButton: PropTypes.bool,
-	hasNextButton: PropTypes.bool,
-	hasSkipButton: PropTypes.bool,
 	onPreviousClick: PropTypes.func,
 	onSkipClick: PropTypes.func,
 	onNextClick: PropTypes.func,
@@ -522,6 +477,8 @@ TwoDimensionalImage.propTypes = {
 		value: PropTypes.string,
 		children: PropTypes.array,
 	}),
+	renderAnnotationUI: PropTypes.func.isRequired,
+	onAnnotationUpdate: PropTypes.func.isRequired,
 };
 TwoDimensionalImage.defaultProps = {
 	className: '',
@@ -534,9 +491,6 @@ TwoDimensionalImage.defaultProps = {
 	isLabelOn: false,
 	isViewOnlyMode: false,
 	emptyAnnotationReminderText: '',
-	hasPreviousButton: false,
-	hasNextButton: false,
-	hasSkipButton: false,
 	onPreviousClick: () => {},
 	onSkipClick: () => {},
 	onNextClick: () => {},
