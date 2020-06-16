@@ -100,7 +100,8 @@ class TwoDimensionalImage extends Component {
 		 * annotations to the onAnnotationUpdate prop.
 		 */
 		const { entities } = this.state;
-		if (prevState.entities.annotations && prevState.entities !== entities) {
+		const { isViewOnlyMode } = this.props;
+		if (!isViewOnlyMode && prevState.entities.annotations && prevState.entities !== entities) {
 			const { onAnnotationUpdate } = this.props;
 			if (onAnnotationUpdate) {
 				onAnnotationUpdate(entities.annotations);
@@ -389,6 +390,7 @@ class TwoDimensionalImage extends Component {
 			width: imageWidth,
 			focusedName,
 			isLabelOn,
+			isViewOnlyMode,
 			magnifyingPower,
 			emptyAnnotationReminderText,
 			onAnnotationClick: this.handleAnnotationClick,
@@ -410,19 +412,6 @@ class TwoDimensionalImage extends Component {
 		};
 		document.body.style.cursor = isAdding ? 'crosshair' : 'default';
 
-		const addButtonUI = (
-			<Button
-				outline
-				className='d-flex align-items-center mb-3 two-dimensional-image__add-button'
-				color='primary'
-				onClick={ () => this.handleAddClick() }
-			>
-				<MdAdd />
-				{isAdding ? 'Adding Annotation' : 'Add Annotation'}
-				<small>{`(${SHORTCUTS.BUTTON.ADD.key})`}</small>
-			</Button>
-		);
-
 		const rootClassName = `two-dimensional-image${className ? ` ${className}` : ''}`;
 
 		return (
@@ -441,7 +430,7 @@ class TwoDimensionalImage extends Component {
 								</div>
 							</div>
 							{
-								renderAnnotationUI ?
+								!isViewOnlyMode && renderAnnotationUI ?
 									renderAnnotationUI(this.handleAddClick) :
 									null
 							}

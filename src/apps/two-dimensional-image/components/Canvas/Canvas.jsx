@@ -65,6 +65,7 @@ const Canvas = ({
 		magnifyingPower,
 		isLabelOn,
 		isAdding,
+		isViewOnlyMode,
 		focusedName,
 		onCanvasImgLoad: onImgLoad,
 		onCanvasStageMouseDown: onStageMouseDown,
@@ -85,7 +86,7 @@ const Canvas = ({
 			if (i === 0) {
 				startPoint.x = v.x; startPoint.y = v.y;
 			}
-			if (focusedName === name) {
+			if (!isViewOnlyMode && focusedName === name) {
 				verticesUI.push(
 					<Circle
 						offsetX={ 0 }
