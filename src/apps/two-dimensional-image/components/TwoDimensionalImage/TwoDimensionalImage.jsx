@@ -20,6 +20,7 @@ import Canvas from '../Canvas/Canvas.jsx';
 import i18nextInstance from './i18n';
 
 const SHORTCUTS = {
+	/*
 	MAGNIFIER: {
 		'1X': { key: '1', code: 49 },
 		'2X': { key: '2', code: 50 },
@@ -37,6 +38,7 @@ const SHORTCUTS = {
 		UNDO: { key: 'z', code: 90 },
 		REDO: { key: 'x', code: 88 },
 	},
+	*/
 };
 class TwoDimensionalImage extends Component {
 	constructor(props) {
