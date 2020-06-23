@@ -16,7 +16,7 @@ import { Vertex } from '../../models/vertex';
 import { getUniqueKey } from '../../utils/utils';
 import TwoDimensionalImageContext from './twoDimensionalImageContext';
 import AnnotationList from '../AnnotationList/AnnotationList.jsx';
-import { MdDelete } from 'react-icons/md';
+import { MdDelete, MdPanTool } from 'react-icons/md';
 import Canvas from '../Canvas/Canvas.jsx';
 import i18nextInstance from './i18n';
 
@@ -456,6 +456,10 @@ class TwoDimensionalImage extends Component {
 		this.setState({ selectedModel: modelId });
 	}
 
+	removeObject = (annotationID) => {
+		this.handleAnnotationDeleteClick(annotationID);
+	}
+
 	updateSelectedTag = (tag, annotationID) => {
 		this.setState((prevState) => {
 			const { entities } = prevState;
@@ -475,6 +479,15 @@ class TwoDimensionalImage extends Component {
 		>
 			<div className='image-labeler-panel-objects-section-object-buttons'>
 				<button
+					className='image-labeler-panel-objects-section-object-buttons-button--select'
+					onClick={ () => this.handleAnnotationClick(annotation.id) }
+					type='button'
+				>
+					<MdPanTool />
+				</button>
+				<button
+					className='image-labeler-panel-objects-section-object-buttons-button--remove'
+					onClick={ () => this.removeObject(annotation.id) }
 					type='button'
 				>
 					<MdDelete />
@@ -526,7 +539,7 @@ class TwoDimensionalImage extends Component {
 						const { annotations } = entities;
 						console.log(annotations);
 					}
-				}}
+				} }
 				type='button'
 			>
 				{!isLabelsCorrected ? 'Correct Bounding Boxes' : 'Submit Changes'}
@@ -597,14 +610,14 @@ class TwoDimensionalImage extends Component {
 				<I18nextProvider i18n={ i18nextInstance }>
 					<TwoDimensionalImageContext.Provider value={ twoDimensionalImageContext }>
 						<div className='image-labeler'>
-							<div className="image-labeler-head">
-								<div className="image-labeler-head-url">
-									<div className="image-labeler-head-url-title">URL</div>
-									<div className="image-labeler-head-url-content">{url}</div>
+							<div className='image-labeler-head'>
+								<div className='image-labeler-head-url'>
+									<div className='image-labeler-head-url-title'>URL</div>
+									<div className='image-labeler-head-url-content'>{url}</div>
 								</div>
-								<div className="image-labeler-head-model">
-									<div className="image-labeler-head-model-title">Model</div>
-									<div className="image-labeler-head-model-content">
+								<div className='image-labeler-head-model'>
+									<div className='image-labeler-head-model-title'>Model</div>
+									<div className='image-labeler-head-model-content'>
 										<select
 											className='image-labeler-head-model-select'
 											id='image-labeler-head-model-select'

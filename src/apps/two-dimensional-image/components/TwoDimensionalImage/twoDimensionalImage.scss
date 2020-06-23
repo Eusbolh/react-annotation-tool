@@ -20,6 +20,10 @@
 	}
 }
 
+:focus {
+	text-decoration: none !important;
+}
+
 $light-gray1: #CED9E0;
 $light-gray2: #D8E1E8;
 $light-gray3: #E1E8ED;
@@ -210,13 +214,27 @@ $violet5: #C274C2;
 						color: $gray3;
 						display: flex;
 						font-size: 20px;
+						height: 24px;
 						padding: 2px;
+						width: 24px;
 					}
 
 					button:hover {
 						background-color: $light-gray3;
 						border-radius: 3px;
 						color: $red5;
+					}
+
+					&-button--select {
+						font-size: 16px !important;
+					}
+
+					&-button--select:hover {
+						color: $cobalt5 !important;
+					}
+
+					&-button--remove {
+
 					}
 				}
 			}
