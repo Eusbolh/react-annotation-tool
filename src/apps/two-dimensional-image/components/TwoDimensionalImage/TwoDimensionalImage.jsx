@@ -373,13 +373,6 @@ class TwoDimensionalImage extends Component {
 
 	handleAnnotationUpdate = () => {
 		this.setState({ isLabelsCorrected: false });
-
-		/*
-		const { onAnnotationUpdate } = this.props;
-		if (onAnnotationUpdate) {
-			onAnnotationUpdate(annotations);
-		}
-		*/
 	}
 
 	correctLabels = () => {
@@ -444,29 +437,6 @@ class TwoDimensionalImage extends Component {
 		this.setState({ selectedModel: modelId });
 	}
 
-	renderModelsTool = (selectedModel) => {
-		return (
-			<div className='image-labeler-panel-toolbox-section'>
-				<div className='image-labeler-panel-toolbox-section-head'>
-					<div className='image-labeler-panel-toolbox-section-head-title'>Models</div>
-				</div>
-				<div className='image-labeler-panel-toolbox-section-content'>
-					<select
-						className='image-labeler-panel-models-select'
-						id='image-labeler-panel-models-select'
-						name='image-labeler-panel-models-select'
-						onChange={ e => this.selectModel(e.target.value) }
-						value={ selectedModel }
-					>
-						<option value='volvo'>Volvo</option>
-						<option value='saab'>Saab</option>
-						<option value='mercedes'>Mercedes</option>
-					</select>
-				</div>
-			</div>
-		);
-	}
-
 	renderObjectsTool = () => (
 		<div className='image-labeler-panel-toolbox-section'>
 			<div className='image-labeler-panel-toolbox-section-head'>
@@ -480,7 +450,15 @@ class TwoDimensionalImage extends Component {
 		<div className='image-labeler-panel-submit-section'>
 			<button
 				className={ `image-labeler-panel-submit-section-button${!isLabelsCorrected ? ' image-labeler-panel-submit-section-button--correct' : ' image-labeler-panel-submit-section-button--submit'} `}
-				onClick={ () => this.correctLabels() }
+				onClick={ () => {
+					if (!isLabelsCorrected) {
+						this.correctLabels();
+					} else {
+						const { entities } = this.state;
+						const { annotations } = entities;
+						console.log(annotations);
+					}
+				}}
 				type='button'
 			>
 				{!isLabelsCorrected ? 'Correct Bounding Boxes' : 'Submit Changes'}
@@ -551,10 +529,31 @@ class TwoDimensionalImage extends Component {
 				<I18nextProvider i18n={ i18nextInstance }>
 					<TwoDimensionalImageContext.Provider value={ twoDimensionalImageContext }>
 						<div className='image-labeler'>
+							<div className="image-labeler-head">
+								<div className="image-labeler-head-url">
+									<div className="image-labeler-head-url-title">URL</div>
+									<div className="image-labeler-head-url-content">{url}</div>
+								</div>
+								<div className="image-labeler-head-model">
+									<div className="image-labeler-head-model-title">Model</div>
+									<div className="image-labeler-head-model-content">
+										<select
+											className='image-labeler-head-model-select'
+											id='image-labeler-head-model-select'
+											name='image-labeler-head-model-select'
+											onChange={ e => this.selectModel(e.target.value) }
+											value={ selectedModel }
+										>
+											<option value='volvo'>Volvo</option>
+											<option value='saab'>Saab</option>
+											<option value='mercedes'>Mercedes</option>
+										</select>
+									</div>
+								</div>
+							</div>
 							<div className='image-labeler-panel'>
 								<div className='image-labeler-panel-toolbox'>
 									{this.renderAddTool(isAdding)}
-									{this.renderModelsTool(selectedModel)}
 									{this.renderObjectsTool()}
 									{this.renderSubmitTool(isLabelsCorrected)}
 								</div>
