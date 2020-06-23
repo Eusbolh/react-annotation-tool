@@ -1,21 +1,195 @@
 .two-dimensional-image .two-dimensional-image {
-    &__add-button {
-        small {
-            padding-left: 5px;
-        }
-    }
+	&__add-button {
+		small {
+			padding-left: 5px;
+		}
+	}
 
-    &__image-canvas-container {
-        background: rgb(246, 246, 246);
-    }
+	&__image-canvas-container {
+		background: rgb(246, 246, 246);
+	}
 
-    &__label-button {
-        color: #000;
+	&__label-button {
+		color: #000;
 
-        &:hover,
-        &:active,
-        &:focus {
-        	text-decoration: none;
-        }
-    }
+		&:hover,
+		&:active,
+		&:focus {
+			text-decoration: none;
+		}
+	}
+}
+
+$light-gray1: #CED9E0;
+$light-gray2: #D8E1E8;
+$light-gray3: #E1E8ED;
+$light-gray4: #EBF1F5;
+$gray1: #5C7080;
+$toolbox-width: 300px;
+$green3: #0F9960;
+$green4: #15B371;
+$green5: #3DCC91;
+$red3: #DB3737;
+$red4: #F55656;
+$red5: #FF7373;
+$cobalt3: #2965CC;
+$cobalt4: #4580E6;
+$cobalt5: #669EFF;
+$violet3: #8F398F;
+$violet4: #A854A8;
+$violet5: #C274C2;
+
+.image-labeler {
+	font-family: 'Rubik', sans-serif;
+	height: inherit;
+	width: inherit;
+
+	&-panel {
+		border: 2px solid $light-gray3;
+		display: flex;
+		height: inherit;
+
+		&-add-section {
+
+			&-button {
+				background-color: $green4;
+				border: 2px solid $green3;
+				border-radius: 0px;
+				color: #fff;
+				font-size: 12px;
+				font-weight: 500;
+				height: inherit;
+				letter-spacing: .5px;
+				line-height: 12px;
+				margin: -2px;
+				padding: 8px 16px;
+				text-transform: uppercase;
+				width: calc(100% + 4px);
+			}
+
+			&-button--success {
+				background-color: $green4;
+				border: 2px solid $green3;
+			}
+
+			&-button--success:hover {
+				background-color: $green5;
+				border-color: $green4;
+			}
+
+			&-button--error {
+				background-color: $red4;
+				border: 2px solid $red3;
+			}
+
+			&-button--error:hover {
+				background-color: $red5;
+				border-color: $red4;
+			}
+
+			&-content {
+				padding: 12px;
+			}
+		}
+
+		&-submit-section {
+			bottom: 0;
+			position: absolute;
+			width: 100%;
+
+			&-button {
+				background-color: $green4;
+				border: 2px solid $green3;
+				border-radius: 0px;
+				color: #fff;
+				font-size: 12px;
+				font-weight: 500;
+				height: inherit;
+				letter-spacing: .5px;
+				line-height: 12px;
+				margin: -2px;
+				padding: 8px 16px;
+				text-transform: uppercase;
+				width: calc(100% + 4px);
+			}
+
+			&-button--correct {
+				background-color: $violet4;
+				border: 2px solid $violet3;
+			}
+
+			&-button--correct:hover {
+				background-color: $violet5;
+				border-color: $violet4;
+			}
+
+			&-button--submit {
+				background-color: $cobalt4;
+				border: 2px solid $cobalt3;
+			}
+
+			&-button--submit:hover {
+				background-color: $cobalt5;
+				border-color: $cobalt4;
+			}
+
+			&-content {
+				padding: 12px;
+			}
+		}
+
+		&-toolbox {
+			border-right: 2px solid $light-gray3;
+			position: relative;
+			width: $toolbox-width;
+
+			&-section {
+				border-top: 2px solid $light-gray3;
+
+				&-head {
+					background-color: $light-gray4;
+					border-bottom: 2px solid $light-gray3;
+					padding: 8px 12px;
+
+					&-title {
+						color: $gray1;
+						font-size: 12px;
+						font-weight: 500;
+						letter-spacing: .5px;
+						line-height: 12px;
+						text-transform: uppercase;
+					}
+				}
+
+				&-content {
+					padding: 12px;
+				}
+			}
+		}
+
+		&-content {
+			background-color: $light-gray4;
+			align-items: center;
+			display: flex;
+			justify-content: center;
+			width: calc(100% - 300px); // 200px = $toolbox-width
+
+			&-canvas {
+				
+			}
+		}
+
+		&-models-select {
+			background-color: inherit;
+			border: 1px solid $light-gray3;
+			border-radius: 3px;
+			color: $gray1;
+			padding: 4px;
+			width: 100%;
+		}
+		
+		&-models-select:hover {
+			border-color: $light-gray1;
+		}
+	}
 }

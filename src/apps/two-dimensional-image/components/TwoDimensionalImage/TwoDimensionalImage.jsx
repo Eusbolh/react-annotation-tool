@@ -40,6 +40,9 @@ const SHORTCUTS = {
 	},
 	*/
 };
+
+const models = [{ name: 'Major', id: 'major' }, { name: 'Clothing', id: 'clothing' }, { name: 'Tiny', id: 'tiny' }];
+
 class TwoDimensionalImage extends Component {
 	constructor(props) {
 		super(props);
@@ -84,16 +87,17 @@ class TwoDimensionalImage extends Component {
 			imageHeight: 0,
 			imageWidth,
 			annotations,
+			/* Image Labeler States */
+			isAddingObject: false,
+			selectedModel: false,
+			isLabelsCorrected: false,
 		};
 		this.UndoRedoState = new UndoRedo();
 	}
 
 	componentDidMount = () => {
-		document.addEventListener('keydown', this.handleKeydown, false);
-	}
-
-	componentWillUnmount = () => {
-		document.removeEventListener('keydown', this.handleKeydown, false);
+		/* Image Labeler */
+		this.selectModel(models[0]);
 	}
 
 	componentDidUpdate = (_, prevState) => {
@@ -104,10 +108,7 @@ class TwoDimensionalImage extends Component {
 		const { entities } = this.state;
 		const { isViewOnlyMode } = this.props;
 		if (!isViewOnlyMode && prevState.entities.annotations && prevState.entities !== entities) {
-			const { onAnnotationUpdate } = this.props;
-			if (onAnnotationUpdate) {
-				onAnnotationUpdate(entities.annotations);
-			}
+			this.handleAnnotationUpdate(entities.annotations);
 		}
 	}
 
@@ -362,6 +363,131 @@ class TwoDimensionalImage extends Component {
 		}
 	}
 
+	/* Image Labeler Functions */
+
+	isAnnotationEqual = (defaultAnnotation, annotation) => {
+		// Note: this implementation can change with the new edge cases found
+		const result = JSON.stringify(defaultAnnotation) === JSON.stringify(annotation);
+		return result;
+	}
+
+	handleAnnotationUpdate = () => {
+		this.setState({ isLabelsCorrected: false });
+
+		/*
+		const { onAnnotationUpdate } = this.props;
+		if (onAnnotationUpdate) {
+			onAnnotationUpdate(annotations);
+		}
+		*/
+	}
+
+	correctLabels = () => {
+		this.setState((prevState) => {
+			const { annotations } = prevState.entities;
+			const annotationIDs = Object.keys(annotations);
+			const updatedAnnotations = {};
+			if (annotationIDs) {
+				annotationIDs.forEach((annotationID) => {
+					const annotation = annotations[annotationID];
+					if (annotation.isClosed) {
+						const { vertices } = annotation;
+						let top = Number.MAX_SAFE_INTEGER;
+						let bottom = 0;
+						let left = Number.MAX_SAFE_INTEGER;
+						let right = 0;
+						if (vertices) {
+							vertices.forEach((vertice) => {
+								if (vertice.x < left) {
+									left = vertice.x;
+								} else if (vertice.x > right) {
+									right = vertice.x;
+								}
+								if (vertice.y < top) {
+									top = vertice.y;
+								} else if (vertice.y > bottom) {
+									bottom = vertice.y;
+								}
+							});
+						}
+						const updatedVertices = [];
+						updatedVertices.push({ x: left, y: top, id: `${annotation.name}-tl`, name: `${annotation.name}-tl`, label: '' });
+						updatedVertices.push({ x: right, y: top, id: `${annotation.name}-tr`, name: `${annotation.name}-tr`, label: '' });
+						updatedVertices.push({ x: right, y: bottom, id: `${annotation.name}-br`, name: `${annotation.name}-br`, label: '' });
+						updatedVertices.push({ x: left, y: bottom, id: `${annotation.name}-bl`, name: `${annotation.name}-bl`, label: '' });
+						annotation.vertices = updatedVertices;
+					}
+					updatedAnnotations[annotationID] = annotation;
+				});
+			}
+			return prevState;
+		});
+		this.setState({ isLabelsCorrected: true });
+	}
+
+	renderAddTool = isAddingObject => (
+		<div className='image-labeler-panel-add-section'>
+			<button
+				className={ `image-labeler-panel-add-section-button${isAddingObject ? ' image-labeler-panel-add-section-button--error' : ' image-labeler-panel-add-section-button--success'}` }
+				onClick={ () => {
+					this.setState(prevState => ({ isAddingObject: !prevState.isAddingObject }));
+					this.handleAddClick();
+				} }
+				type='button'
+			>
+				{isAddingObject ? 'Cancel Object Addition' : 'Add New Object'}
+			</button>
+		</div>
+	);
+
+	selectModel = (modelId) => {
+		this.setState({ selectedModel: modelId });
+	}
+
+	renderModelsTool = (selectedModel) => {
+		return (
+			<div className='image-labeler-panel-toolbox-section'>
+				<div className='image-labeler-panel-toolbox-section-head'>
+					<div className='image-labeler-panel-toolbox-section-head-title'>Models</div>
+				</div>
+				<div className='image-labeler-panel-toolbox-section-content'>
+					<select
+						className='image-labeler-panel-models-select'
+						id='image-labeler-panel-models-select'
+						name='image-labeler-panel-models-select'
+						onChange={ e => this.selectModel(e.target.value) }
+						value={ selectedModel }
+					>
+						<option value='volvo'>Volvo</option>
+						<option value='saab'>Saab</option>
+						<option value='mercedes'>Mercedes</option>
+					</select>
+				</div>
+			</div>
+		);
+	}
+
+	renderObjectsTool = () => (
+		<div className='image-labeler-panel-toolbox-section'>
+			<div className='image-labeler-panel-toolbox-section-head'>
+				<div className='image-labeler-panel-toolbox-section-head-title'>Objects</div>
+			</div>
+			<div className='image-labeler-panel-toolbox-section-content'>objects</div>
+		</div>
+	);
+
+	renderSubmitTool = isLabelsCorrected => (
+		<div className='image-labeler-panel-submit-section'>
+			<button
+				className={ `image-labeler-panel-submit-section-button${!isLabelsCorrected ? ' image-labeler-panel-submit-section-button--correct' : ' image-labeler-panel-submit-section-button--submit'} `}
+				onClick={ () => this.correctLabels() }
+				type='button'
+			>
+				{!isLabelsCorrected ? 'Correct Bounding Boxes' : 'Submit Changes'}
+			</button>
+		</div>
+	)
+
 	render() {
 		const {
 			isAdding,
@@ -373,12 +499,16 @@ class TwoDimensionalImage extends Component {
 			annotations,
 			entities,
 			rootOptionId,
+			/* Image Labeler States */
+			selectedModel,
+			isLabelsCorrected,
 		} = this.state;
 		const {
 			className,
 			disabledOptionLevels,
 			emptyAnnotationReminderText,
 			isDynamicOptionsEnable,
+			isImageLabeler,
 			isViewOnlyMode,
 			renderAnnotationUI,
 			url,
@@ -415,6 +545,37 @@ class TwoDimensionalImage extends Component {
 		document.body.style.cursor = isAdding ? 'crosshair' : 'default';
 
 		const rootClassName = `two-dimensional-image${className ? ` ${className}` : ''}`;
+
+		if (isImageLabeler) {
+			return (
+				<I18nextProvider i18n={ i18nextInstance }>
+					<TwoDimensionalImageContext.Provider value={ twoDimensionalImageContext }>
+						<div className='image-labeler'>
+							<div className='image-labeler-panel'>
+								<div className='image-labeler-panel-toolbox'>
+									{this.renderAddTool(isAdding)}
+									{this.renderModelsTool(selectedModel)}
+									{this.renderObjectsTool()}
+									{this.renderSubmitTool(isLabelsCorrected)}
+								</div>
+								<div className='image-labeler-panel-content'>
+									<div className='image-labeler-panel-content-canvas'>
+										<div style={ { position: 'relative' } }>
+											<Canvas
+												entities={ entities }
+												focusedName={ focusedName }
+												power={ magnifyingPower }
+												isLabelOn={ isLabelOn }
+											/>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</TwoDimensionalImageContext.Provider>
+				</I18nextProvider>
+			);
+		}
 
 		return (
 			<I18nextProvider i18n={ i18nextInstance }>
@@ -470,6 +631,7 @@ TwoDimensionalImage.propTypes = {
 	}),
 	renderAnnotationUI: PropTypes.func.isRequired,
 	onAnnotationUpdate: PropTypes.func.isRequired,
+	isImageLabeler: PropTypes.bool,
 };
 TwoDimensionalImage.defaultProps = {
 	className: '',
@@ -485,5 +647,6 @@ TwoDimensionalImage.defaultProps = {
 	onPreviousClick: () => {},
 	onSkipClick: () => {},
 	onNextClick: () => {},
+	isImageLabeler: false,
 };
 export default TwoDimensionalImage;

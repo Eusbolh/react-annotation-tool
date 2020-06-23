@@ -50,10 +50,11 @@ const DemoPage = () => {
 
 	return (
 		<div>
-			<div className='mb-5'>
+			<div className='mb-5' style={ { height: '720px', width: '1440px' } }>
 				<TwoDimensionalImage
 					isDynamicOptionsEnable
 					defaultAnnotations={ imageAnnotations }
+					isImageLabeler
 					isLabelOn
 					url='https://www.gtice.is/wp-content/uploads/2015/06/Snaefellsnes_Tour_Kirkjufell_by_KateI.jpg'
 					imageWidth={ 600 }
