@@ -16,6 +16,7 @@ import { Vertex } from '../../models/vertex';
 import { getUniqueKey } from '../../utils/utils';
 import TwoDimensionalImageContext from './twoDimensionalImageContext';
 import AnnotationList from '../AnnotationList/AnnotationList.jsx';
+import { MdDelete } from 'react-icons/md';
 import Canvas from '../Canvas/Canvas.jsx';
 import i18nextInstance from './i18n';
 
@@ -42,6 +43,8 @@ const SHORTCUTS = {
 };
 
 const models = [{ name: 'Major', id: 'major' }, { name: 'Clothing', id: 'clothing' }, { name: 'Tiny', id: 'tiny' }];
+
+const tags = ['test1', 'test2', 'test3'];
 
 class TwoDimensionalImage extends Component {
 	constructor(props) {
@@ -371,8 +374,24 @@ class TwoDimensionalImage extends Component {
 		return result;
 	}
 
+	getDefaultTag = () => tags && tags[0];
+
 	handleAnnotationUpdate = () => {
 		this.setState({ isLabelsCorrected: false });
+		this.setState((prevState) => {
+			const { annotations } = prevState.entities;
+			const annotationIDs = Object.keys(annotations);
+			if (annotationIDs) {
+				annotationIDs.forEach((annotationID) => {
+					const annotation = annotations[annotationID];
+					if (!annotation.selectedOptions || annotation.selectedOptions.length === 0) {
+						annotation.selectedOptions = [{
+							id: `${annotationID}-opt`, value: this.getDefaultTag(),
+						}];
+					}
+				});
+			}
+		});
 	}
 
 	correctLabels = () => {
@@ -437,12 +456,61 @@ class TwoDimensionalImage extends Component {
 		this.setState({ selectedModel: modelId });
 	}
 
-	renderObjectsTool = () => (
-		<div className='image-labeler-panel-toolbox-section'>
+	updateSelectedTag = (tag, annotationID) => {
+		this.setState((prevState) => {
+			const { entities } = prevState;
+			const { annotations } = entities;
+			const annotation = annotations[annotationID];
+			if (annotation && annotation.selectedOptions && annotation.selectedOptions[0]) {
+				annotation.selectedOptions[0].value = tag;
+			}
+			return prevState;
+		});
+	}
+
+	renderObject = (annotation, focusedName) => (
+		<div
+			className={ `image-labeler-panel-objects-section-object${focusedName === annotation.name ? ' image-labeler-panel-objects-section-object--focused' : ''}` }
+			key={ `image-labeler-panel-objects-section-object-${annotation.id}` }
+		>
+			<div className='image-labeler-panel-objects-section-object-buttons'>
+				<button
+					type='button'
+				>
+					<MdDelete />
+				</button>
+			</div>
+			<div className='image-labeler-panel-objects-section-object-label'>
+				<select
+					className='image-labeler-panel-objects-section-object-label-select'
+					id={ `image-labeler-panel-objects-section-object-label-select-${annotation.id}` }
+					name={ `image-labeler-panel-objects-section-object-label-select-${annotation.id}` }
+					onChange={ e => this.updateSelectedTag(e.target.value, annotation.id) }
+					value={
+						annotation.selectedOptions &&
+						annotation.selectedOptions[0] &&
+						annotation.selectedOptions[0].value
+					}
+				>
+					{tags && tags.map(tag => (
+						<option key={ `image-labeler-panel-objects-section-object-label-tag-${tag}` } value={ tag }>{tag}</option>
+					))}
+				</select>
+			</div>
+			<div className='image-labeler-panel-objects-section-object-border' style={ { backgroundColor: annotation.color } }>&nbsp;</div>
+		</div>
+	)
+
+	renderObjectsTool = (annotations, focusedName) => (
+		<div className='image-labeler-panel-toolbox-section image-labeler-panel-objects-section'>
 			<div className='image-labeler-panel-toolbox-section-head'>
 				<div className='image-labeler-panel-toolbox-section-head-title'>Objects</div>
 			</div>
-			<div className='image-labeler-panel-toolbox-section-content'>objects</div>
+			<div className='image-labeler-panel-toolbox-section-content'>
+				{Object.keys(annotations) && Object.keys(annotations).map(annotationID => (
+					this.renderObject(annotations[annotationID], focusedName)
+				))}
+			</div>
 		</div>
 	);
 
@@ -554,7 +622,7 @@ class TwoDimensionalImage extends Component {
 							<div className='image-labeler-panel'>
 								<div className='image-labeler-panel-toolbox'>
 									{this.renderAddTool(isAdding)}
-									{this.renderObjectsTool()}
+									{this.renderObjectsTool(entities.annotations, focusedName)}
 									{this.renderSubmitTool(isLabelsCorrected)}
 								</div>
 								<div className='image-labeler-panel-content'>
