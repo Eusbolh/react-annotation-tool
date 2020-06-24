@@ -42,8 +42,6 @@ const SHORTCUTS = {
 	*/
 };
 
-const models = [{ name: 'Major', id: 'major' }, { name: 'Clothing', id: 'clothing' }, { name: 'Tiny', id: 'tiny' }];
-
 const tags = ['test1', 'test2', 'test3'];
 
 class TwoDimensionalImage extends Component {
@@ -53,6 +51,7 @@ class TwoDimensionalImage extends Component {
 			defaultAnnotations,
 			isLabelOn,
 			imageWidth,
+			models,
 		} = props;
 
 		const entities = { options: {}, annotations: {} };
@@ -70,10 +69,10 @@ class TwoDimensionalImage extends Component {
 			rootOptionId = '0';
 			entities.options['0'] = { id: '0', value: 'root', children: [] };
 		}
-
-		if (defaultAnnotations && defaultAnnotations.length !== 0) {
+		
+		if (props.defaultAnnotations && props.defaultAnnotations[models[0].id] && props.defaultAnnotations[models[0].id].length !== 0) {
 			const annotation = new schema.Entity('annotations');
-			const normalizedAnn = normalize(defaultAnnotations, [annotation]);
+			const normalizedAnn = normalize(defaultAnnotations[models[0].id], [annotation]);
 			entities.annotations = normalizedAnn.entities.annotations;
 			annotations = normalizedAnn.result;
 		}
@@ -100,7 +99,8 @@ class TwoDimensionalImage extends Component {
 
 	componentDidMount = () => {
 		/* Image Labeler */
-		this.selectModel(models[0]);
+		const { models } = this.props;
+		this.setState({ selectedModel: models[0].id });
 	}
 
 	componentDidUpdate = (_, prevState) => {
@@ -374,7 +374,21 @@ class TwoDimensionalImage extends Component {
 		return result;
 	}
 
-	getDefaultTag = () => tags && tags[0];
+	getDefaultTag = () => {
+		const tags = this.getTags();
+		return tags && tags[0];
+	}
+
+	getTags = () => {
+		const { models } = this.props;
+		const { selectedModel } = this.state;
+		if (selectedModel) {
+			const model = models.find(m => m.id === selectedModel);
+			const { tags } = model;
+			return tags;
+		}
+		return null;
+	}
 
 	handleAnnotationUpdate = () => {
 		this.setState({ isLabelsCorrected: false });
@@ -429,6 +443,10 @@ class TwoDimensionalImage extends Component {
 						updatedVertices.push({ x: left, y: bottom, id: `${annotation.name}-bl`, name: `${annotation.name}-bl`, label: '' });
 						annotation.vertices = updatedVertices;
 					}
+					const tags = this.getTags();
+					if (!tags.includes(annotation.selectedOptions[0].value)) {
+						annotation.selectedOptions[0].value = tags[0];
+					}
 					updatedAnnotations[annotationID] = annotation;
 				});
 			}
@@ -452,8 +470,40 @@ class TwoDimensionalImage extends Component {
 		</div>
 	);
 
-	selectModel = (modelId) => {
-		this.setState({ selectedModel: modelId });
+	setDefaultAnnotations = (modelID) => {
+		this.setState((prevState) => {
+			const { ...props } = this.props;
+			let rootOptionId = '';
+			let annotations = [];
+			const entities = { options: {}, annotations: {} };
+			if (props.options && Object.keys(props.options).length !== 0) {
+				const option = new schema.Entity('options');
+				const children = new schema.Array(option);
+				option.define({ children });
+				const normalizedOptions = normalize(props.options, option);
+				entities.options = normalizedOptions.entities.options;
+				rootOptionId = normalizedOptions.result;
+			} else {
+				rootOptionId = '0';
+				entities.options['0'] = { id: '0', value: 'root', children: [] };
+			}
+
+			if (props.defaultAnnotations && props.defaultAnnotations[modelID] && props.defaultAnnotations[modelID].length !== 0) {
+				const annotation = new schema.Entity('annotations');
+				const normalizedAnn = normalize(props.defaultAnnotations[modelID], [annotation]);
+				entities.annotations = normalizedAnn.entities.annotations;
+				annotations = normalizedAnn.result;
+			}
+
+			return { ...prevState, entities, rootOptionId, annotations };
+		});
+	}
+
+	selectModel = (modelID) => {
+		if (confirm('Your unsaved changes will be lost. Are you sure you want to continue?')) {
+			this.setState({ selectedModel: modelID });
+			this.setDefaultAnnotations(modelID);
+		}
 	}
 
 	removeObject = (annotationID) => {
@@ -468,7 +518,7 @@ class TwoDimensionalImage extends Component {
 			if (annotation && annotation.selectedOptions && annotation.selectedOptions[0]) {
 				annotation.selectedOptions[0].value = tag;
 			}
-			return prevState;
+			return { ...prevState, isLabelsCorrected: false };
 		});
 	}
 
@@ -505,7 +555,8 @@ class TwoDimensionalImage extends Component {
 						annotation.selectedOptions[0].value
 					}
 				>
-					{tags && tags.map(tag => (
+					<option value='default-value'>Select Tag</option>
+					{this.getTags() && this.getTags().map(tag => (
 						<option key={ `image-labeler-panel-objects-section-object-label-tag-${tag}` } value={ tag }>{tag}</option>
 					))}
 				</select>
@@ -537,7 +588,7 @@ class TwoDimensionalImage extends Component {
 					} else {
 						const { entities } = this.state;
 						const { annotations } = entities;
-						console.log(annotations);
+						this.props.onSubmit(annotations);
 					}
 				} }
 				type='button'
@@ -571,6 +622,7 @@ class TwoDimensionalImage extends Component {
 			isViewOnlyMode,
 			renderAnnotationUI,
 			url,
+			models,
 		} = this.props;
 		const twoDimensionalImageContext = {
 			url,
@@ -625,9 +677,9 @@ class TwoDimensionalImage extends Component {
 											onChange={ e => this.selectModel(e.target.value) }
 											value={ selectedModel }
 										>
-											<option value='volvo'>Volvo</option>
-											<option value='saab'>Saab</option>
-											<option value='mercedes'>Mercedes</option>
+											{models && models.map(model => (
+												<option key={ `image-labeler-head-model-select-model-${model.id}` } value={ model.id }>{model.name}</option>
+											))}
 										</select>
 									</div>
 								</div>
@@ -712,6 +764,7 @@ TwoDimensionalImage.propTypes = {
 	renderAnnotationUI: PropTypes.func.isRequired,
 	onAnnotationUpdate: PropTypes.func.isRequired,
 	isImageLabeler: PropTypes.bool,
+	onSubmit: PropTypes.func.isRequired,
 };
 TwoDimensionalImage.defaultProps = {
 	className: '',
