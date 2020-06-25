@@ -66,6 +66,7 @@ const Canvas = ({
 		isLabelOn,
 		isAdding,
 		isViewOnlyMode,
+		isImageLabeler,
 		focusedName,
 		onCanvasImgLoad: onImgLoad,
 		onCanvasStageMouseDown: onStageMouseDown,
@@ -147,7 +148,7 @@ const Canvas = ({
 				name={ name }
 				points={ linePoints }
 				closed={ isClosed }
-				fill={ focusedName === name ? colorWithOpacity : '' }
+				fill={ focusedName === name || !isImageLabeler ? colorWithOpacity : '' }
 				stroke={ color }
 				strokeWidth={ 1 }
 				lineCap='round'

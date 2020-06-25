@@ -50,6 +50,7 @@ class TwoDimensionalImage extends Component {
 		const {
 			defaultAnnotations,
 			isLabelOn,
+			isImageLabeler,
 			imageWidth,
 			models,
 		} = props;
@@ -70,9 +71,16 @@ class TwoDimensionalImage extends Component {
 			entities.options['0'] = { id: '0', value: 'root', children: [] };
 		}
 		
-		if (props.defaultAnnotations && props.defaultAnnotations[models[0].id] && props.defaultAnnotations[models[0].id].length !== 0) {
+		if (isImageLabeler) {
+			if (props.defaultAnnotations && props.defaultAnnotations[models[0].id] && props.defaultAnnotations[models[0].id].length !== 0) {
+				const annotation = new schema.Entity('annotations');
+				const normalizedAnn = normalize(defaultAnnotations[models[0].id], [annotation]);
+				entities.annotations = normalizedAnn.entities.annotations;
+				annotations = normalizedAnn.result;
+			}
+		} else {
 			const annotation = new schema.Entity('annotations');
-			const normalizedAnn = normalize(defaultAnnotations[models[0].id], [annotation]);
+			const normalizedAnn = normalize(defaultAnnotations, [annotation]);
 			entities.annotations = normalizedAnn.entities.annotations;
 			annotations = normalizedAnn.result;
 		}
@@ -99,8 +107,10 @@ class TwoDimensionalImage extends Component {
 
 	componentDidMount = () => {
 		/* Image Labeler */
-		const { models } = this.props;
-		this.setState({ selectedModel: models[0].id });
+		const { isImageLabeler, models } = this.props;
+		if (isImageLabeler) {
+			this.setState({ selectedModel: models[0].id });
+		}
 	}
 
 	componentDidUpdate = (_, prevState) => {
@@ -631,6 +641,7 @@ class TwoDimensionalImage extends Component {
 			annotations,
 			height: imageHeight,
 			width: imageWidth,
+			isImageLabeler,
 			focusedName,
 			isLabelOn,
 			isViewOnlyMode,
